@@ -1,0 +1,20 @@
+# Dockerfile.bats.ubuntu
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# bash, zsh, git, coreutils をインストール
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+      bash zsh git ca-certificates coreutils && \
+    rm -rf /var/lib/apt/lists/*
+
+# bats-core をインストール
+RUN git clone https://github.com/bats-core/bats-core.git /opt/bats-core \
+  && /opt/bats-core/install.sh /usr/local
+
+# 作業ディレクトリ（ホストのdotfilesをここにマウントする）
+WORKDIR /workspace
+
+# デフォルトはテストを一覧表示（compose側で上書きしてもOK）
+CMD ["bats", "--help"]

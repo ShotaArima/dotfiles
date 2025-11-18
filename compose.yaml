@@ -1,0 +1,10 @@
+services:
+  bats-ubuntu:
+    build:
+      context: .
+      dockerfile: Dockerfile.bats.ubuntu
+    working_dir: /workspace
+    volumes:
+      - .:/workspace:ro
+    # デフォルトのテストコマンド
+    command: ["bats", "tests"]
