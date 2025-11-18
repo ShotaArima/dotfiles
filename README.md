@@ -37,6 +37,11 @@
 ├── bootstrap/
 │   ├── install.sh          # 初期設定スクリプト (symlink貼るなど)
 │   └── detect_os.sh        # OS検出など
+├── tests/
+│   ├── test_detect_os.bats
+│   └── test_install_mac.bats
+├── vendor/
+│    └── bats-core/         # (submodule の場合)
 └── config/
     ├── gitconfig           # 共通の git 設定
     └── starship.toml       # プロンプトツール等の設定
