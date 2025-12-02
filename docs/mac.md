@@ -3,6 +3,8 @@
 ## 前提条件
 - gitコマンドが使用できる
 - Zshターミナルである
+- `$ chmod +x bootstrap/macos_zsh.sh` を実行済みであること
+    - パーミッションを変更しないとShell Scriptが実行できない
 
 ---
 
