@@ -11,7 +11,7 @@ BACKUP_DIR="$DOTFILES_DIR/back-up/$(date +%Y%m%d_%H%M%S)"
 FILES=(
   ".zshrc"
   ".zprofile"
-  ".gitconfig"
+  # ".gitconfig"
 )
 
 # dotfiles 側で設定ファイルを置くディレクトリ
