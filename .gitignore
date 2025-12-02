@@ -1,0 +1,10 @@
+# zsh 関連の自動生成ファイル
+.zcompdump*
+.zsh_history
+.zsh_sessions/
+
+# vim 自動生成
+.viminfo
+
+# macOS
+.DS_Store
