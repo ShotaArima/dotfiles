@@ -1,4 +1,4 @@
-mac:bootstrap/macos_zsh.sh
+mac:bootstrap/mac_zsh.pm
 	perl bootstrap/mac_zsh.pm
 
 .PHONY: help setup mac
