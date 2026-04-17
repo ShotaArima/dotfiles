@@ -41,12 +41,6 @@ alias rm='rm -i'
 alias mkdir='mkdir -p'
 alias rmdir='rmdir -v'
 
-rm() {
-    # 常に最後に -i を付け足すことで、手前の -f を打ち消す
-    command rm "$@" -i
-}
-
-
 # その他便利なエイリアス
 alias tree='tree -C'
 alias -g C='| pbcopy' # copy
