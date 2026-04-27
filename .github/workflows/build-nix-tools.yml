@@ -25,16 +25,16 @@ jobs:
 
       - name: Build installable tools package
         run: |
-          nix build .#packages.${{ matrix.system }}.dotfiles-tools
+          nix build ./nix#packages.${{ matrix.system }}.dotfiles-tools
 
       - name: Export Nix closure as portable artifact
         shell: bash
         run: |
           set -euo pipefail
-          STORE_PATH="$(nix path-info .#packages.${{ matrix.system }}.dotfiles-tools)"
+          STORE_PATH="$(nix path-info ./nix#packages.${{ matrix.system }}.dotfiles-tools)"
 
           mkdir -p dist/cache
-          nix copy --to "file://$PWD/dist/cache" .#packages.${{ matrix.system }}.dotfiles-tools
+          nix copy --to "file://$PWD/dist/cache" ./nix#packages.${{ matrix.system }}.dotfiles-tools
 
           printf '%s\n' "${STORE_PATH}" > dist/store-path.txt
           printf '%s\n' "${{ matrix.system }}" > dist/system.txt
