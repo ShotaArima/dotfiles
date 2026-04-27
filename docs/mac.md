@@ -53,3 +53,20 @@ $ make setup
 ```
 
 - これで最新設定が適用される。
+
+## 3. Nix で uv を使う（推奨）
+
+シェル初期化ファイル（`.zprofile`）へ Nix の読み込み処理を直接書かず、  
+`nix/flake.nix` の `devShell` で `uv` を管理する構成にしています。
+
+### 3-i. その場で確認する
+
+```bash
+$ nix develop ./nix -c uv --version
+```
+
+### 3-ii. make 経由で確認する
+
+```bash
+$ make uv-check
+```
