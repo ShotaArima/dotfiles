@@ -1,3 +1,14 @@
+# dotfiles
+
+## dotfiles-tools の取得方法について
+`nix profile add "github:ShotaArima/dotfiles?dir=nix#dotfiles-tools"` は、GitHub Actions でビルド済みの成果物を直接取得するコマンドではありません。
+
+このコマンドは GitHub 上の `nix/flake.nix` を取得し、そこに定義された `dotfiles-tools` を手元の Nix で評価して profile に追加します。
+
+`dotfiles-tools` に含まれる `uv` / `gnumake` / `perl` などは、利用可能であれば Nix の binary cache から取得されます。取得できない場合はローカルでビルドされます。
+
+GitHub Actions でビルドした成果物を配布したい場合は、別途 binary cache や artifact を用意し、`nix copy` などで closure を取り込む構成にします。
+
 ## セットアップ方法
 
 ### 0) リポジトリのクローン
@@ -79,66 +90,92 @@ ${EDITOR:-vi} ~/.config/nix/nix.conf
 ```
 
 ---
+### 3) dotfiles 用ツールを Nix profile に追加する
 
-### 3) セットアップの実行
+このリポジトリでは、`make` / `perl` / `uv` などのセットアップに必要なツールを `dotfiles-tools` として定義しています。
 
-推奨手順は、Nix の開発シェルに入ってから `make setup` を実行する方法です。
+`dotfiles-tools` を Nix profile に追加すると、通常の shell からこれらのコマンドを使えるようになります。
 
 ```bash
 cd ~/dotfiles
 git pull
-nix develop ./nix -c make setup
 ```
 
-または、開発シェルに入らず 1 コマンドで実行することもできます。
+既存の `dotfiles-tools` が profile に入っている場合、同じものを何度も `nix profile add` すると重複することがあります。  
+そのため、先に既存の `dotfiles-tools` を削除してから追加します。
 
 ```bash
-cd ~/dotfiles
-nix develop ./nix -c make setup
+nix profile list
 ```
 
----
+`packages.x86_64-linux.dotfiles-tools` や `dotfiles-tools` が表示されている場合は、`Name` を指定して削除します。
 
-### 4) dotfiles 用ツールを profile に入れる場合
-
-毎回 `nix develop` せずに `make` などを使いたい場合は、この flake が提供する `dotfiles-tools` を Nix profile にインストールできます。
+例:
 
 ```bash
-nix profile install "github:ShotaArima/dotfiles?dir=nix#dotfiles-tools" --no-write-lock-file
+nix profile remove nix-1
 ```
 
-インストール後、以下を確認します。
+複数ある場合は、まとめて削除します。
 
 ```bash
+nix profile remove nix-1 nix-2 nix-3
+```
+
+その後、`dotfiles-tools` を追加します。
+
+```bash
+nix profile add ./nix#dotfiles-tools
+```
+
+追加後、通常の shell で以下が使えることを確認します。
+
+```bash
+hash -r
+uv --version
 make --version
 perl --version
 ```
 
-その後、セットアップを実行します。
-
-```bash
-cd ~/dotfiles
-git pull
-make setup
-```
-
-> 補足: この手順は「Nix の PATH を通す」手順ではなく、「この dotfiles で必要なツールを Nix profile に追加する」手順です。
+これで、毎回 `nix develop` に入らなくても、通常の shell から `uv` / `make` / `perl` が使えるようになります。
 
 ---
 
-### 5) Nix shell の prompt 表示について
+### 4) セットアップの実行
 
-Nix shell に入っていることを prompt に表示する設定は任意です。
-セットアップに必須ではありません。
+`dotfiles-tools` を Nix profile に追加した後は、通常の shell で `make setup` を実行できます。
 
-bash の `nix develop` shell で prompt を変えたい場合は、`nix.conf` に以下のような設定を追加できます。
-
-```conf
-bash-prompt-prefix = (nix)
+```bash
+cd ~/dotfiles
+make setup
 ```
 
-zsh / fish / starship などを使っている場合は、それぞれの prompt 側で設定する方が自然です。
+---
 
+### 5) GitHub 上の flake から直接 profile に追加する場合
+
+ローカルの `~/dotfiles/nix/flake.nix` ではなく、GitHub 上の flake を直接使う場合は以下を実行します。
+
+```bash
+nix profile add "github:ShotaArima/dotfiles?dir=nix#dotfiles-tools" --no-write-lock-file --refresh
+```
+
+ただし、すでに `dotfiles-tools` が profile に入っている場合は、先に削除してください。
+
+```bash
+nix profile list
+nix profile remove <Name>
+```
+
+例:
+
+```bash
+nix profile remove nix-1
+nix profile add "github:ShotaArima/dotfiles?dir=nix#dotfiles-tools" --no-write-lock-file --refresh
+```
+
+> 補足: `nix profile add` は「既存の package を自動で置き換える」コマンドではありません。
+> 同じ `dotfiles-tools` を何度も追加すると profile に重複することがあるため、更新したい場合は既存の entry を削除してから追加してください。
 ---
 
 ## セットアップ方式の使い分け
