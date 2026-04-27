@@ -1,89 +1,88 @@
-# dotfiles
+## セットアップ方法
 
-## 構成
+### 0) リポジトリのクローン
+
+SSH 鍵を GitHub に登録済みの場合:
 
 ```bash
-~/dotfiles
-├── README.md
-├── back-up/
-│   └── 既存の設定ファイルの退避先
-├── bootstrap/
-│   ├── setup.pm
-│   └── mac_zsh.pm (legacy)
-├── docs
-│   └── mac.md
-├── nix
-│   └── flake.nix
-├── makefile
-├── .gitignore
-└── config/
-    ├── .zprofile            # 共通 fallback
-    ├── .zshrc               # 共通 fallback
-    ├── mac/
-    │   └── .bashrc          # macOS 専用
-    └── linux/
-        └── .bashrc          # Linux 専用
+git clone git@github.com:ShotaArima/dotfiles.git ~/dotfiles
+cd ~/dotfiles
 ```
 
-## セットアップシナリオ
-
-README を「初回構築」と「更新」に分けて使えるように整理しました。
-
-### シナリオ1: 全く Nix も何もない環境から構築する
-
-最短は **Nix を先に入れて、Nix が提供する `make` / `perl` で `make setup` を実行**する方法です。
-
-1. Nix をインストールする（公式インストーラー）
-2. このリポジトリを clone する
-3. `nix develop` 経由で `make setup` を実行する
+SSH 鍵を未設定の場合は HTTPS でも clone できます。
 
 ```bash
 git clone https://github.com/ShotaArima/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-nix develop ./nix -c make setup
 ```
 
-> ホスト側に `make` が未導入でも動作します。
+---
 
-#### 補足: GitHub Actions でビルドした成果物を使う場合
+### 1) Nix の確認
 
-`dotfiles-tools`（`make` + `perl` を含む）を GitHub Actions でビルドした成果物（Nix closure）から導入できます。
-
-対応 workflow: `.github/workflows/build-nix-tools.yml`
-
-```mermaid
-flowchart LR
-  A[push / workflow_dispatch] --> B[GitHub Actions\nBuild flake package]
-  B --> C[Artifact: dotfiles-tools-<system>.tgz]
-  C --> D[Client PC\nDownload artifact]
-  D --> E[nix copy --from file://cache <store-path>]
-  E --> F[nix profile install <store-path>]
-  F --> G[make setup 実行]
-```
-
-クライアント PC 側の適用手順（artifact 展開後）:
+以下のコマンドが実行できれば、Nix はすでに利用可能です。
 
 ```bash
-tar -xzf dotfiles-tools-x86_64-linux.tgz
-nix copy --from "file://$PWD/cache" "$(cat store-path.txt)"
-nix profile install "$(cat store-path.txt)"
-make --version
+command -v nix
+nix --version
 ```
 
-または GitHub 上の flake 出力を直接使うこともできます。
+表示される場合は、`2) Flakes の有効化` に進んでください。
+
+---
+
+### 1-1) Nix のインストール
+- このShell Scriptを実行し、Nixをインストールしてください
 
 ```bash
-nix profile install github:ShotaArima/dotfiles#dotfiles-tools
-make --version
+bash nix-install.sh
 ```
 
-### シナリオ2: 以前 dotfiles で構築済みで、更新する
+- インストール後、新しいターミナルを開き直してください。
 
-既存環境を壊さずに更新する想定です。
+```bash
+nix --version
+```
 
-1. 既存の `~/dotfiles` に移動
-2. リポジトリを更新（`git pull`）
-3. 再度 `make setup` を実行
+> 補足: `nix: command not found` になる場合は、ターミナルを開き直すか、shell の初期化ファイルで PATH を上書きしていないか確認してください。
+
+---
+
+### 2) Flakes の有効化
+
+このリポジトリでは `flake.nix` を使うため、Nix の experimental features を有効にします。
+
+- ユーザー単位で設定する場合:
+
+```bash
+mkdir -p /etc/nix
+${EDITOR:-vi} /etc/nix/nix.conf
+```
+
+- 以下を追記してください。
+
+```conf
+experimental-features = nix-command flakes
+```
+
+- 確認します。
+
+```bash
+nix flake --help
+nix develop --help
+```
+
+> 補足: ユーザー単位で設定したい場合は `~/.config/nix` に同じ設定を書きます。
+```bash
+~/.config/nix
+${EDITOR:-vi} ~/.config/nix/nix.conf
+```
+
+---
+
+### 3) セットアップの実行
+
+推奨手順は、Nix の開発シェルに入ってから `make setup` を実行する方法です。
 
 ```bash
 cd ~/dotfiles
@@ -91,7 +90,31 @@ git pull
 nix develop ./nix -c make setup
 ```
 
-Nix を使わず、ホスト側に `make` がある場合は以下でも更新できます。
+または、開発シェルに入らず 1 コマンドで実行することもできます。
+
+```bash
+cd ~/dotfiles
+nix develop ./nix -c make setup
+```
+
+---
+
+### 4) dotfiles 用ツールを profile に入れる場合
+
+毎回 `nix develop` せずに `make` などを使いたい場合は、この flake が提供する `dotfiles-tools` を Nix profile にインストールできます。
+
+```bash
+nix profile install "github:ShotaArima/dotfiles?dir=nix#dotfiles-tools" --no-write-lock-file
+```
+
+インストール後、以下を確認します。
+
+```bash
+make --version
+perl --version
+```
+
+その後、セットアップを実行します。
 
 ```bash
 cd ~/dotfiles
@@ -99,35 +122,31 @@ git pull
 make setup
 ```
 
-> `make setup` 実行時、既存ファイルがシンボリックリンク以外なら `back-up/<timestamp>/` へ退避してからリンクを再作成します。
+> 補足: この手順は「Nix の PATH を通す」手順ではなく、「この dotfiles で必要なツールを Nix profile に追加する」手順です。
 
-## テスト（GitHub Actions）
+---
 
-`push` と `pull_request` のタイミングで、以下を自動実行します。
+### 5) Nix shell の prompt 表示について
 
-- `nix` コマンドの実行確認（`nix --version` / `nix profile --help`）
-- `bootstrap/mac_zsh.pm` の構文チェック（`perl -c`）
-- 一時 `HOME` を使ったセットアップの統合テスト（バックアップ作成とシンボリックリンク作成の確認）
+Nix shell に入っていることを prompt に表示する設定は任意です。
+セットアップに必須ではありません。
 
-## OS別の設定ファイル解決ルール
+bash の `nix develop` shell で prompt を変えたい場合は、`nix.conf` に以下のような設定を追加できます。
 
-`make setup` は実行中OSを自動判定して、以下の優先順でシンボリックリンク元を決定します。
+```conf
+bash-prompt-prefix = (nix)
+```
 
-1. `config/<os>/<ファイル名>`
-2. `config/<ファイル名>`（共通 fallback）
+zsh / fish / starship などを使っている場合は、それぞれの prompt 側で設定する方が自然です。
 
-例:
+---
 
-- macOS で `.bashrc` を張る場合: `config/mac/.bashrc` を優先
-- Linux で `.bashrc` を張る場合: `config/linux/.bashrc` を優先
-- OS専用ファイルが無い場合: `config/.zshrc` など共通ファイルを利用
+## セットアップ方式の使い分け
 
-対象ファイル:
+| 方法 | 用途 |
+|---|---|
+| `nix develop ./nix` | 一時的に dotfiles 用の開発環境へ入る |
+| `nix develop ./nix -c make setup` | 開発シェルに入らずセットアップだけ実行する |
+| `nix profile install ...#dotfiles-tools` | `make` や `perl` を普段の profile に入れて使う |
+| ホストの `make` / `perl` を使う | Nix を使わず従来通り実行する |
 
-- `.zshrc`
-- `.zprofile`
-- `.bashrc`
-- `.bash_profile`
-- `.profile`
-
-既存ファイルがシンボリックリンク以外の場合、`back-up/<timestamp>/` へ退避してからリンクを作成します。
