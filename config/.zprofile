@@ -13,5 +13,3 @@ if [ -d "/Applications/MATLAB_R2025b.app/bin" ]; then
   export PATH="$PATH:/Applications/MATLAB_R2025b.app/bin"
 fi
 
-
-

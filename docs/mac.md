@@ -54,3 +54,13 @@ $ make setup
 ```
 
 - これで最新設定が適用される。
+
+## 3. Nix で uv を導入する
+
+`.zprofile` は Nix がインストール済みの場合に自動で初期化スクリプトを読み込みます。  
+そのため、以下で `uv` をインストールできます。
+
+```bash
+$ nix profile install nixpkgs#uv
+$ uv --version
+```
