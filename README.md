@@ -11,6 +11,8 @@
 │   └── mac_zsh.pm
 ├── docs
 │   └── mac.md
+├── nix
+│   └── flake.nix
 ├── makefile
 ├── .gitignore
 └── config/

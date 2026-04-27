@@ -13,17 +13,3 @@ if [ -d "/Applications/MATLAB_R2025b.app/bin" ]; then
   export PATH="$PATH:/Applications/MATLAB_R2025b.app/bin"
 fi
 
-# --- 4) Nix（インストール済みなら有効化）
-# Nix を使って `nix profile install nixpkgs#uv` で uv を導入できるようにする
-if [ -e "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]; then
-  . "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
-elif [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
-  . "$HOME/.nix-profile/etc/profile.d/nix.sh"
-fi
-
-# Nix profile 配下のコマンドを優先的に参照
-if [ -d "$HOME/.nix-profile/bin" ]; then
-  export PATH="$HOME/.nix-profile/bin:$PATH"
-fi
-
-
