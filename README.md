@@ -25,11 +25,31 @@
         └── .bashrc          # Linux 専用
 ```
 
-## セットアップ方法
+## セットアップシナリオ
 
-### GitHub ActionsでビルドしたNix環境をクライアントへ反映する構成
+README を「初回構築」と「更新」に分けて使えるように整理しました。
 
-可能です。`dotfiles-tools`（`make` + `perl` を含む）を GitHub Actions でビルドし、成果物（Nix closure）をクライアントPCへ取り込んで `nix profile install` できます。
+### シナリオ1: 全く Nix も何もない環境から構築する
+
+最短は **Nix を先に入れて、Nix が提供する `make` / `perl` で `make setup` を実行**する方法です。
+
+1. Nix をインストールする（公式インストーラー）
+2. このリポジトリを clone する
+3. `nix develop` 経由で `make setup` を実行する
+
+```bash
+git clone https://github.com/ShotaArima/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+nix develop ./nix -c make setup
+```
+
+> ホスト側に `make` が未導入でも動作します。
+
+#### 補足: GitHub Actions でビルドした成果物を使う場合
+
+`dotfiles-tools`（`make` + `perl` を含む）を GitHub Actions でビルドした成果物（Nix closure）から導入できます。
+
+対応 workflow: `.github/workflows/build-nix-tools.yml`
 
 ```mermaid
 flowchart LR
@@ -41,9 +61,7 @@ flowchart LR
   F --> G[make setup 実行]
 ```
 
-対応workflow: `.github/workflows/build-nix-tools.yml`
-
-クライアントPC側の適用手順（artifact展開後）:
+クライアント PC 側の適用手順（artifact 展開後）:
 
 ```bash
 tar -xzf dotfiles-tools-x86_64-linux.tgz
@@ -52,42 +70,37 @@ nix profile install "$(cat store-path.txt)"
 make --version
 ```
 
-### 1) まず Nix が提供する実行環境で実行する（`make` 未導入でも可）
-
-`make` がホスト環境に未導入でも、先に Nix の開発シェル経由で実行できます。
-
-```bash
-git clone https://github.com/ShotaArima/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-nix develop ./nix -c make setup
-```
-
-上記は `nix/flake.nix` で定義した `gnumake` / `perl` を使って `make setup` を実行します。
-
-また、GitHub上のflake出力を直接使う場合は以下でも導入できます。
+または GitHub 上の flake 出力を直接使うこともできます。
 
 ```bash
 nix profile install github:ShotaArima/dotfiles#dotfiles-tools
 make --version
 ```
 
-### 2) 開発シェルへ入ってから実行する場合
+### シナリオ2: 以前 dotfiles で構築済みで、更新する
+
+既存環境を壊さずに更新する想定です。
+
+1. 既存の `~/dotfiles` に移動
+2. リポジトリを更新（`git pull`）
+3. 再度 `make setup` を実行
 
 ```bash
 cd ~/dotfiles
-nix develop ./nix
-make setup
+git pull
+nix develop ./nix -c make setup
 ```
 
----
-
-従来どおり、ホスト側に `make` がある場合は以下でも実行できます。
+Nix を使わず、ホスト側に `make` がある場合は以下でも更新できます。
 
 ```bash
-git clone https://github.com/ShotaArima/dotfiles.git ~/dotfiles
 cd ~/dotfiles
+git pull
 make setup
 ```
+
+> `make setup` 実行時、既存ファイルがシンボリックリンク以外なら `back-up/<timestamp>/` へ退避してからリンクを再作成します。
+
 ## テスト（GitHub Actions）
 
 `push` と `pull_request` のタイミングで、以下を自動実行します。
