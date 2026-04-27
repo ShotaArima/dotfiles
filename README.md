@@ -86,8 +86,8 @@ ${EDITOR:-vi} ~/.config/nix/nix.conf
 
 ```bash
 cd ~/dotfiles
-nix develop ./nix
-make setup
+git pull
+nix develop ./nix -c make setup
 ```
 
 または、開発シェルに入らず 1 コマンドで実行することもできます。
@@ -118,6 +118,7 @@ perl --version
 
 ```bash
 cd ~/dotfiles
+git pull
 make setup
 ```
 
