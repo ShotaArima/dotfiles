@@ -11,13 +11,26 @@
       forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
     in
     {
+      packages = forAllSystems (system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+          dotfilesTools = pkgs.buildEnv {
+            name = "dotfiles-tools";
+            paths = with pkgs; [ gnumake perl ];
+          };
+        in
+        {
+          dotfiles-tools = dotfilesTools;
+          default = dotfilesTools;
+        });
+
       devShells = forAllSystems (system:
         let
           pkgs = import nixpkgs { inherit system; };
         in
         {
           default = pkgs.mkShell {
-            packages = with pkgs; [ uv ];
+            packages = with pkgs; [ uv gnumake perl ];
           };
         });
     };

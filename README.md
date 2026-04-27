@@ -27,6 +27,62 @@
 
 ## セットアップ方法
 
+### GitHub ActionsでビルドしたNix環境をクライアントへ反映する構成
+
+可能です。`dotfiles-tools`（`make` + `perl` を含む）を GitHub Actions でビルドし、成果物（Nix closure）をクライアントPCへ取り込んで `nix profile install` できます。
+
+```mermaid
+flowchart LR
+  A[push / workflow_dispatch] --> B[GitHub Actions\nBuild flake package]
+  B --> C[Artifact: dotfiles-tools-<system>.tgz]
+  C --> D[Client PC\nDownload artifact]
+  D --> E[nix copy --from file://cache <store-path>]
+  E --> F[nix profile install <store-path>]
+  F --> G[make setup 実行]
+```
+
+対応workflow: `.github/workflows/build-nix-tools.yml`
+
+クライアントPC側の適用手順（artifact展開後）:
+
+```bash
+tar -xzf dotfiles-tools-x86_64-linux.tgz
+nix copy --from "file://$PWD/cache" "$(cat store-path.txt)"
+nix profile install "$(cat store-path.txt)"
+make --version
+```
+
+### 1) まず Nix が提供する実行環境で実行する（`make` 未導入でも可）
+
+`make` がホスト環境に未導入でも、先に Nix の開発シェル経由で実行できます。
+
+```bash
+git clone https://github.com/ShotaArima/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+nix develop ./nix -c make setup
+```
+
+上記は `nix/flake.nix` で定義した `gnumake` / `perl` を使って `make setup` を実行します。
+
+また、GitHub上のflake出力を直接使う場合は以下でも導入できます。
+
+```bash
+nix profile install github:ShotaArima/dotfiles#dotfiles-tools
+make --version
+```
+
+### 2) 開発シェルへ入ってから実行する場合
+
+```bash
+cd ~/dotfiles
+nix develop ./nix
+make setup
+```
+
+---
+
+従来どおり、ホスト側に `make` がある場合は以下でも実行できます。
+
 ```bash
 git clone https://github.com/ShotaArima/dotfiles.git ~/dotfiles
 cd ~/dotfiles
