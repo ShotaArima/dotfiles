@@ -1,0 +1,38 @@
+name: Test bootstrap
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  bootstrap-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Perl syntax check
+        run: perl -c bootstrap/mac_zsh.pm
+
+      - name: Integration test
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TMP_HOME="$(mktemp -d)"
+          trap 'rm -rf "$TMP_HOME"' EXIT
+
+          echo "legacy-zshrc" > "$TMP_HOME/.zshrc"
+          echo "legacy-zprofile" > "$TMP_HOME/.zprofile"
+
+          DOTFILES="$GITHUB_WORKSPACE" HOME="$TMP_HOME" perl bootstrap/mac_zsh.pm
+
+          test -L "$TMP_HOME/.zshrc"
+          test -L "$TMP_HOME/.zprofile"
+
+          test "$(readlink "$TMP_HOME/.zshrc")" = "$GITHUB_WORKSPACE/config/.zshrc"
+          test "$(readlink "$TMP_HOME/.zprofile")" = "$GITHUB_WORKSPACE/config/.zprofile"
+
+          test -n "$(find "$GITHUB_WORKSPACE/back-up" -mindepth 2 -maxdepth 2 -name '.zshrc' -print -quit)"
+          test -n "$(find "$GITHUB_WORKSPACE/back-up" -mindepth 2 -maxdepth 2 -name '.zprofile' -print -quit)"
