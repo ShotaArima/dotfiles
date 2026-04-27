@@ -1,10 +1,3 @@
-これまでの修正内容（コマンドのアップデート、パスやロックファイルの回避策、Nix自体の導入方法など）をすべて統合し、1つの完全な `README.md` として再生成しました。
-
-そのままコピー＆ペーストしてご利用いただけます。
-
----
-
-```markdown
 # dotfiles
 
 ## 構成
@@ -32,33 +25,30 @@
         └── .bashrc          # Linux 専用
 ```
 
-## 事前準備（Nixを利用する場合）
-
-ホスト環境に `make` や `perl` がない場合でも、Nix を使ってセットアップが可能です。Nix本体が未インストールの場合は、以下の推奨コマンド（Determinate Systems版）で導入してください。
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf -L [https://install.determinate.systems/nix](https://install.determinate.systems/nix) | sh -s -- install
-```
-
-> **Note:** インストール直後に `nix` コマンドが見つからない場合は、ターミナルを再起動するか、以下を実行してパスを読み込んでください。
-> ` . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh `
-
----
-
 ## セットアップ方法
 
-### 1) Nix が提供する実行環境で実行する（`make` 未導入でも可）
-
-`make` がホスト環境に未導入でも、Nix の開発シェル経由で `nix/flake.nix` に定義されたツール（`gnumake`, `perl`）を利用して実行できます。
-
-**ローカルにクローンして実行する場合:**
+### 0) リポジトリのクローン
+- 以下のコマンドを実行し、リポジトリをクローンしてください
 ```bash
-git clone [https://github.com/ShotaArima/dotfiles.git](https://github.com/ShotaArima/dotfiles.git) ~/dotfiles
 cd ~/dotfiles
-# Flakesが有効な環境で実行
-nix develop ./nix -c make setup
+git clone git@github.com:ShotaArima/dotfiles.git
 ```
 
+### 1) Nix の確認 & インストール
+- 以下のコマンドが実行できればここはスキップ
+  - 2) へ進んでください
+```bash
+which nix
+```
+
+#### 1-1) Nixのインストール
+- `which nix`で何も表示されない場合、以下のコマンドを実行してください
+
+```bash
+bash nix-install.sh
+```
+
+#### 1-2) Nixのパスを通します。
 **GitHubから直接ツールをインストールする場合:**
 ※ Nixの「実験的機能（Flakes/nix-command）」が有効である必要があります。
 
