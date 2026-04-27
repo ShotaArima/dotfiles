@@ -4,6 +4,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   bootstrap-test:
@@ -11,6 +12,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Verify nix command
+        run: |
+          nix --version
+          nix profile --help > /dev/null
 
       - name: Perl syntax check
         run: perl -c bootstrap/mac_zsh.pm

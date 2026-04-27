@@ -28,5 +28,6 @@ make setup
 
 `push` と `pull_request` のタイミングで、以下を自動実行します。
 
+- `nix` コマンドの実行確認（`nix --version` / `nix profile --help`）
 - `bootstrap/mac_zsh.pm` の構文チェック（`perl -c`）
 - 一時 `HOME` を使ったセットアップの統合テスト（バックアップ作成とシンボリックリンク作成の確認）
