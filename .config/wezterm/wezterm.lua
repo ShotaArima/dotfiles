@@ -7,7 +7,7 @@ config.font = wezterm.font("JetBrains Mono")
 config.font_size = 18.0
 
 -- 背景を透過
-config.window_background_opacity = 0.1
+config.window_background_opacity = 0.4
 -- ぼかしを追加
 config.macos_window_background_blur = 20
 
