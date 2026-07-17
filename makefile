@@ -1,20 +1,24 @@
-setup: os
+setup: os wezterm
 
 .PHONY: help setup mac uv-check
 os:bootstrap/setup.pm
 	perl bootstrap/setup.pm
 
+wezterm:bootstrap/wezterm.pm
+	perl bootstrap/wezterm.pm
+
 mac: os
 linux: os
 
-.PHONY: help setup os mac linux
+.PHONY: help setup os wezterm mac linux
 
 help:
 	@echo "Available targets:"
-	@echo "  make setup   # Setup dotfiles for current OS (macOS / Linux)"
-	@echo "  make os      # Alias of setup"
-	@echo "  make mac     # Alias of setup"
-	@echo "  make linux   # Alias of setup"
+	@echo "  make setup    # Setup dotfiles for current OS (macOS / Linux)"
+	@echo "  make os       # Alias of setup"
+	@echo "  make wezterm  # Link WezTerm config (~/.config/wezterm)"
+	@echo "  make mac      # Alias of setup"
+	@echo "  make linux    # Alias of setup"
 	@echo "  make uv-check # Check uv via Nix flake shell"
 
 uv-check:

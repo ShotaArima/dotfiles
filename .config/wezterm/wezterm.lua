@@ -1,0 +1,19 @@
+local wezterm = require("wezterm")
+local config = wezterm.config_builder()
+
+config.automatically_reload_config = true
+
+config.font = wezterm.font("JetBrains Mono") 
+config.font_size = 18.0
+
+-- 背景を透過
+config.window_background_opacity = 0.65
+-- ぼかしを追加
+config.macos_window_background_blur = 20
+
+-- other settings
+require("keymaps").apply_to_config(config)
+require("appearance").apply_to_config(config)
+require("tab").apply_to_config(config)
+
+return config
