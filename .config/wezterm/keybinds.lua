@@ -104,7 +104,10 @@ return {
     { key = 'h', mods = 'SHIFT|CTRL', action = act.HideApplication },
     { key = 'h', mods = 'SUPER', action = act.HideApplication },
     { key = 'k', mods = 'SHIFT|CTRL', action = act.ClearScrollback 'ScrollbackOnly' },
-    { key = 'k', mods = 'SUPER', action = act.ClearScrollback 'ScrollbackOnly' },
+    { key = 'k', mods = 'SUPER', action = act.Multiple {
+        act.ClearScrollback 'ScrollbackAndViewport',
+        act.SendKey { key = 'l', mods = 'CTRL' },
+    } },
     { key = 'l', mods = 'SHIFT|CTRL', action = act.ShowDebugOverlay },
     { key = 'm', mods = 'SHIFT|CTRL', action = act.Hide },
     { key = 'm', mods = 'SUPER', action = act.Hide },
@@ -145,6 +148,17 @@ return {
     { key = 'DownArrow', mods = 'SHIFT|ALT|CTRL', action = act.AdjustPaneSize{ 'Down', 1 } },
     { key = 'Copy', mods = 'NONE', action = act.CopyTo 'Clipboard' },
     { key = 'Paste', mods = 'NONE', action = act.PasteFrom 'Clipboard' },
+
+    -- ここから手動追加 --------------------------------------------------------
+    -- macOS 標準ターミナル風: Option+←/→ で単語移動、Option+Backspace で単語削除。
+    -- zsh(emacs モード)の backward-word / forward-word / backward-kill-word に対応する
+    -- エスケープ列を送る。
+    { key = 'LeftArrow', mods = 'ALT', action = act.SendString '\x1bb' },
+    { key = 'RightArrow', mods = 'ALT', action = act.SendString '\x1bf' },
+    { key = 'Backspace', mods = 'ALT', action = act.SendString '\x1b\x7f' },
+
+    -- ⌘P でコマンドパレット（デフォルトは Ctrl+Shift+P のみのため追加）
+    { key = 'p', mods = 'SUPER', action = act.ActivateCommandPalette },
   },
 
   key_tables = {
