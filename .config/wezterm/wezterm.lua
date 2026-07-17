@@ -3,6 +3,9 @@ local config = wezterm.config_builder()
 
 config.automatically_reload_config = true
 
+-- kitty keyboard protocol を有効化し、cmd 系のキーを herdr 側へ渡す
+config.enable_kitty_keyboard = true
+
 config.font = wezterm.font("JetBrains Mono") 
 config.font_size = 18.0
 
