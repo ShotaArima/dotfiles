@@ -1,6 +1,24 @@
 local wezterm = require 'wezterm'
 local act = wezterm.action
 
+-- 切替前にいた workspace 名を覚えておく（scratch から戻るときに使う）
+local previous = {}
+
+-- name の workspace とトグルする。
+-- 今その workspace にいるなら元いた場所へ戻り、そうでなければ
+-- 現在地を覚えてから name へ切り替える。
+local function toggle_workspace(name, spawn)
+  return wezterm.action_callback(function(window, pane)
+    local current = wezterm.mux.get_active_workspace()
+    if current == name then
+      window:perform_action(act.SwitchToWorkspace { name = previous[name] or 'default' }, pane)
+    else
+      previous[name] = current
+      window:perform_action(act.SwitchToWorkspace { name = name, spawn = spawn }, pane)
+    end
+  end)
+end
+
 return {
   keys = {
     { key = 'Tab', mods = 'CTRL', action = act.ActivateTabRelative(1) },
@@ -178,6 +196,14 @@ return {
     { key = 'Space', mods = 'LEADER', action = act.QuickSelect },
     -- Cmd+Space でも一応使える（Spotlight を無効化している場合のみ有効）
     { key = 'Space', mods = 'SUPER', action = act.QuickSelect },
+
+    -- workspace 操作 -------------------------------------------------------
+    -- Leader→n: 新しい workspace を作成（名前は自動生成）
+    { key = 'n', mods = 'LEADER', action = act.SwitchToWorkspace },
+    -- Leader→w: workspace 一覧をあいまい検索で選択
+    { key = 'w', mods = 'LEADER', action = act.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' } },
+    -- Leader→s: メモ用の scratch workspace と行き来する（トグル）
+    { key = 's', mods = 'LEADER', action = toggle_workspace('scratch') },
   },
 
   key_tables = {

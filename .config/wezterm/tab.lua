@@ -13,7 +13,8 @@ local COLORS = {
   inactive_bg = "none", -- "none" で透過
   inactive_fg = "#a0a9cb",
 
-  -- 右ステータス（メモリ・時計）
+  -- 右ステータス（workspace・メモリ・時計）
+  ws_fg = "#f9e2af", -- workspace 名の色
   mem_fg = "#80EBDF", -- メモリ使用量の色
   clock_fg = "#a0a9cb", -- 時計の色
 }
@@ -23,6 +24,7 @@ local LEFT_CIRCLE = wezterm.nerdfonts.ple_left_half_circle_thick
 local RIGHT_CIRCLE = wezterm.nerdfonts.ple_right_half_circle_thick
 
 -- 右ステータス用アイコン（フォントに無ければ "" になるよう or で保険）
+local WS_ICON = wezterm.nerdfonts.md_view_dashboard or ""
 local MEM_ICON = wezterm.nerdfonts.md_memory or ""
 local CLOCK_ICON = wezterm.nerdfonts.md_clock_time_four_outline or ""
 
@@ -119,14 +121,25 @@ function module.apply_to_config(config)
     local mem = get_memory()
     local time = wezterm.strftime("%m/%d (%a) %H:%M")
 
-    window:set_right_status(wezterm.format({
-      -- メモリ使用量（XX.XXGB (XX%)）
-      { Foreground = { Color = COLORS.mem_fg } },
-      { Text = MEM_ICON .. " " .. mem .. "   " },
-      -- 時計
-      { Foreground = { Color = COLORS.clock_fg } },
-      { Text = CLOCK_ICON .. " " .. time .. " " },
-    }))
+    -- 右ステータスの構成パーツを組み立てる
+    local elements = {}
+
+    -- workspace 名: 無名の初期状態（"default"）のときは表示しない。
+    -- 名前付き workspace を使っているときだけ先頭に出す。
+    local workspace = window:active_workspace()
+    if workspace ~= "default" then
+      table.insert(elements, { Foreground = { Color = COLORS.ws_fg } })
+      table.insert(elements, { Text = WS_ICON .. " " .. workspace .. "   " })
+    end
+
+    -- メモリ使用量（XX.XXGB (XX%)）
+    table.insert(elements, { Foreground = { Color = COLORS.mem_fg } })
+    table.insert(elements, { Text = MEM_ICON .. " " .. mem .. "   " })
+    -- 時計
+    table.insert(elements, { Foreground = { Color = COLORS.clock_fg } })
+    table.insert(elements, { Text = CLOCK_ICON .. " " .. time .. " " })
+
+    window:set_right_status(wezterm.format(elements))
   end)
 end
 
