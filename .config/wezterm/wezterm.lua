@@ -22,9 +22,17 @@ config.keys = keybinds.keys
 config.key_tables = keybinds.key_tables
 
 -- Leaderの認識
-config.leader = { 
-  key = ";", 
-  mods = "CTRL", 
-  timeout_milliseconds = 2000, 
-} 
+config.leader = {
+  key = ";",
+  mods = "CTRL",
+  timeout_milliseconds = 2000,
+}
+
+-- QuickSelect: デフォルトのパターンを無効化し、拾う対象を絞る
+-- （Cmd+Space での起動キーは keybinds.lua 側に定義）
+config.disable_default_quick_select_patterns = true
+config.quick_select_patterns = {
+  "\\b[0-9a-f]{7,40}\\b", -- Git commit hash
+}
+
 return config

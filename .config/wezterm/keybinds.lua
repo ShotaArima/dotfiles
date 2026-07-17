@@ -171,6 +171,13 @@ return {
     { key = 'z', mods = 'LEADER', action = act.TogglePaneZoomState },           -- ペインをズーム
     { key = 'x', mods = 'LEADER', action = act.CloseCurrentPane { confirm = true } }, -- ペインを閉じる
     { key = 'c', mods = 'LEADER', action = act.SpawnTab 'CurrentPaneDomain' },  -- 新規タブ
+
+    -- QuickSelect: Leader(Ctrl+;)→Space で起動。
+    -- Leader は WezTerm 内部で処理されるため 1Password/Spotlight 等の
+    -- グローバルショートカットと衝突しない（← 一番確実）
+    { key = 'Space', mods = 'LEADER', action = act.QuickSelect },
+    -- Cmd+Space でも一応使える（Spotlight を無効化している場合のみ有効）
+    { key = 'Space', mods = 'SUPER', action = act.QuickSelect },
   },
 
   key_tables = {
