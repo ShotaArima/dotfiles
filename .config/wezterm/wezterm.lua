@@ -9,7 +9,7 @@ config.automatically_reload_config = true
 -- ) 
 
 config.font = wezterm.font("JetBrains Mono") 
-config.font_size = 14.0
+config.font_size = 18.0
 
 -- 背景を透過
 config.window_background_opacity = 0.85
