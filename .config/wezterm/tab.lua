@@ -105,6 +105,17 @@ function module.apply_to_config(config)
   -- タブバー右側にメモリ使用量と時計を表示する
   -- 既定では約1秒ごとに呼ばれる（config.status_update_interval で変更可）
   wezterm.on("update-status", function(window, _)
+    -- Leader（Ctrl+;）押下中だけ左側に "LEADER" を表示して、待ち状態を可視化する
+    if window:leader_is_active() then
+      window:set_left_status(wezterm.format({
+        { Background = { Color = COLORS.active_bg } },
+        { Foreground = { Color = COLORS.active_fg } },
+        { Text = " ⌘ LEADER " },
+      }))
+    else
+      window:set_left_status("")
+    end
+
     local mem = get_memory()
     local time = wezterm.strftime("%m/%d (%a) %H:%M")
 

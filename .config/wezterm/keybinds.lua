@@ -159,6 +159,18 @@ return {
 
     -- ⌘P でコマンドパレット（デフォルトは Ctrl+Shift+P のみのため追加）
     { key = 'p', mods = 'SUPER', action = act.ActivateCommandPalette },
+
+    -- Leader (Ctrl+;) を前置きにしたペイン操作（tmux 風）--------------------
+    -- Leader を押してから次のキーを押す（例: Ctrl+; → | で横に分割）
+    { key = '|', mods = 'LEADER', action = act.SplitHorizontal { domain = 'CurrentPaneDomain' } }, -- 横に分割（左右）
+    { key = '-', mods = 'LEADER', action = act.SplitVertical { domain = 'CurrentPaneDomain' } },   -- 縦に分割（上下）
+    { key = 'h', mods = 'LEADER', action = act.ActivatePaneDirection 'Left' },  -- 左のペインへ
+    { key = 'j', mods = 'LEADER', action = act.ActivatePaneDirection 'Down' },  -- 下のペインへ
+    { key = 'k', mods = 'LEADER', action = act.ActivatePaneDirection 'Up' },    -- 上のペインへ
+    { key = 'l', mods = 'LEADER', action = act.ActivatePaneDirection 'Right' }, -- 右のペインへ
+    { key = 'z', mods = 'LEADER', action = act.TogglePaneZoomState },           -- ペインをズーム
+    { key = 'x', mods = 'LEADER', action = act.CloseCurrentPane { confirm = true } }, -- ペインを閉じる
+    { key = 'c', mods = 'LEADER', action = act.SpawnTab 'CurrentPaneDomain' },  -- 新規タブ
   },
 
   key_tables = {
@@ -229,6 +241,7 @@ return {
 
     search_mode = {
       { key = 'Enter', mods = 'NONE', action = act.CopyMode 'PriorMatch' },
+      { key = "Enter", mods = "SHIFT", action = wezterm.action.SendString("\n"),},
       { key = 'Escape', mods = 'NONE', action = act.CopyMode 'Close' },
       { key = 'n', mods = 'CTRL', action = act.CopyMode 'NextMatch' },
       { key = 'p', mods = 'CTRL', action = act.CopyMode 'PriorMatch' },

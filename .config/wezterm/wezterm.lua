@@ -21,4 +21,10 @@ local keybinds = require("keybinds")
 config.keys = keybinds.keys
 config.key_tables = keybinds.key_tables
 
+-- Leaderの認識
+config.leader = { 
+  key = ";", 
+  mods = "CTRL", 
+  timeout_milliseconds = 2000, 
+} 
 return config
